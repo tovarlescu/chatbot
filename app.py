@@ -1,9 +1,9 @@
 import gradio as gr
 import openai
 import os
-import sys
-import kivy
-# import markdown
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+css_file = os.path.join(current_dir, "style.css")
 
 initial_prompt = "You are a helpful assistant."
 
@@ -24,7 +24,7 @@ def parse_text(text):
     return "".join(lines)
 
 def get_response(system, context, raw = False):
-    openai.api_key = "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"
+    openai.api_key = "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"
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[system, *context],
@@ -99,40 +99,86 @@ Will not describe your needs to ChatGPT？You Use [ChatGPT Shortcut](https://new
 </div>
 """
 
-with gr.Blocks() as demo:
+block = gr.Blocks(css=".gradio-container {background-color: #A238FF}")
+
+with block as demo:
     gr.HTML(title)
     chatbot = gr.Chatbot().style(color_map=("#A238FF", "#A238FF"))
+    
     context = gr.State([])
+    
     systemPrompt = gr.State(update_system(initial_prompt))
-
+    
     with gr.Row():
         with gr.Column(scale=12):
             txt = gr.Textbox(show_label=False, placeholder="Please enter any of your needs here").style(container=False)
         with gr.Column(min_width=50, scale=1):
-            #submitBtn = gr.Button("🚀 Submit", variant="Primary")
-            submitBtn = gr.Button("🚀 Submit").style(css={"background-color": "#A238FF"})
-    with gr.Row():
-        emptyBtn = gr.Button("🧹 New conversation")
-        retryBtn = gr.Button("🔄 Resubmit")
-        delLastBtn = gr.Button("🗑️ Delete conversation")
-        #reduceTokenBtn = gr.Button("♻️ Optimize Tokens")
-
-    #newSystemPrompt = gr.Textbox(show_label=True, placeholder=f"Setting System Prompt...", label="Change System prompt").style(container=True)
-    #systemPromptDisplay = gr.Textbox(show_label=True, value=initial_prompt, interactive=False, label="Current System prompt").style(container=True)
+            #submitBtn = gr.Button("🚀 Submit").style(css=)
+            submitBtn = gr.Button("🚀 Submit", css=".gradio-container {background-color: #A238FF}")
     
-    #gr.Markdown(description)
+    with gr.Row():
+        emptyBtn = gr.Button("🧹 New conversation").style(
+            css={
+                "background-color": "#E0E0E0",
+                "border-radius": "8px",
+                "padding": "8px",
+                "color": "black",
+                "font-weight": "bold",
+                "font-size": "1em",
+                "cursor": "pointer",
+            }
+        )
+        retryBtn = gr.Button("🔄 Resubmit").style(
+            css={
+                "background-color": "#E0E0E0",
+                "border-radius": "8px",
+                "padding": "8px",
+                "color": "black",
+                "font-weight": "bold",
+                "font-size": "1em",
+                "cursor": "pointer",
+            }
+        )
+        delLastBtn = gr.Button("🗑️ Delete conversation").style(
+            css={
+                "background-color": "#E0E0E0",
+                "border-radius": "8px",
+                "padding": "8px",
+                "color": "black",
+                "font-weight": "bold",
+                "font-size": "1em",
+                "cursor": "pointer",
+            }
+        )
     
     txt.submit(predict, [chatbot, txt, systemPrompt, context], [chatbot, context], show_progress=True)
     txt.submit(lambda :"", None, txt)
+    
     submitBtn.click(predict, [chatbot, txt, systemPrompt, context], [chatbot, context], show_progress=True)
     submitBtn.click(lambda :"", None, txt)
+    
     emptyBtn.click(reset_state, outputs=[chatbot, context])
-    #newSystemPrompt.submit(update_system, newSystemPrompt, systemPrompt)
-    #newSystemPrompt.submit(lambda x: x, newSystemPrompt, systemPromptDisplay)
-    #newSystemPrompt.submit(lambda :"", None, newSystemPrompt)
     retryBtn.click(retry, [chatbot, systemPrompt, context], [chatbot, context], show_progress=True)
     delLastBtn.click(delete_last_conversation, [chatbot, context], [chatbot, context], show_progress=True)
-    #reduceTokenBtn.click(reduce_token, [chatbot, systemPrompt, context], [chatbot, context], show_progress=True)
-
+    
+    #demo.style(
+    #    css={
+    #        "background-color": "#F5F5F5",
+    #        "font-family": "sans-serif",
+    #        "padding": "20px",
+    #        "border-radius": "8px",
+    #        "box-shadow": "0px 2px 6px rgba(0,0,0,0.3)",
+    #    }
+    #)
+    
+    #demo.children[0].style(
+    #    css={
+    #        "text-align": "center",
+    #        "font-size": "1.5em",
+    #        "margin-bottom": "20px",
+    #    }
+    #)
+    
+    #gr.set_gradio_chart_theme(theme="light")
 
 demo.launch()
